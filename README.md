@@ -28,8 +28,8 @@ create a .Env file in the root by using
 and add the following variables to it
 
 ```dotenv
-TOKEN=YOURBOTTOKEN
-APPID=YOURBOTID
+    TOKEN=YOURBOTTOKEN
+    APPID=YOURBOTID
 ```
 
 you can get the bot ID by right-clicking the bot user and copy the id, it should be the last option

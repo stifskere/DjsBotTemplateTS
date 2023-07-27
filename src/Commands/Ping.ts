@@ -31,8 +31,9 @@ export default class Ping extends CommandHandler {
 
     async execute(): Promise<void> {
         const embed: EmbedBuilder = new EmbedBuilder()
-            .setTitle("Bot ping")
+            .setTitle("🏓 Bot ping")
             .setDescription(`The current client latency is ${client.ws.ping}ms`)
+            .setFooter({ text: "Pong!" })
             .setTimestamp()
             .setColor(client.ws.ping < 100 ? 0x00FF00 : (client.ws.ping < 150 ? 0xFFFF00 : 0xFF0000));
 
