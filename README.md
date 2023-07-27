@@ -19,7 +19,7 @@ and then just move to the root of the project by using
     cd DjsBotTemplateTS
 ```
 
-create a .Env file in the root by using
+create a .Env file somewhere in the project, it can be inside src, in the root, however you want.
 
 ```bash
     echo "" > ".Env"
