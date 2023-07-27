@@ -1,3 +1,5 @@
+import {client} from "../Exports.js";
+import {ActivityType} from "discord-api-types/v10";
 
 /*
 *   This is an example event for the implementation explanation.
@@ -18,5 +20,6 @@
 */
 
 export default async function(): Promise<void> {
+    client.user.setPresence({status: "online", activities: [{type: ActivityType.Watching, name: "Being coded with DjsBotTemplateTS."}]})
     console.log("The bot is ready!");
 }
