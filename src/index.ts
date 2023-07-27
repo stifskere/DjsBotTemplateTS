@@ -25,9 +25,9 @@ for (const commandIteration of getFilesRecursively(path.resolve(path.dirname(fil
     const command: any = new (await import(`file:///${commandIteration.replace(/\.ts/gmi, ".js")}`)).default();
     if (command instanceof CommandHandler)
         client.commands.set(command.data.name, command);
-
-    await (new REST({version: "10"}).setToken(process.env.TOKEN!))
-        .put(Routes.applicationCommands(process.env.APPID!), {body: client.commands.map(c => c.data.toJSON())});
 }
+
+await new REST({version: "10"}).setToken(process.env.TOKEN!)
+    .put(Routes.applicationCommands(process.env.APPID!), {body: client.commands.map(c => c.data.toJSON())});
 
 await client.login(process.env.TOKEN);
