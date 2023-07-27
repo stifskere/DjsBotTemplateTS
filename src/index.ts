@@ -7,11 +7,11 @@ import {REST, Routes} from "discord.js";
 
 (await import("dotenv")).config({path: ".Env"});
 
-function getFilesRecursively(path: string): Array<string> {
+function getFilesRecursively(folderPath: string): Array<string> {
     const files: Array<string> = [];
-    for (const item of fs.readdirSync(path)) {
-        if (fs.statSync(`${path}\\${item}`).isDirectory()) files.push(...getFilesRecursively(`${path}\\${item}`));
-        else files.push(`${path}\\${item}`);
+    for (const item of fs.readdirSync(folderPath)) {
+        if (fs.statSync(path.join(folderPath, item)).isDirectory()) files.push(...getFilesRecursively(path.join(folderPath, item)));
+        else files.push(path.join(folderPath, item));
     }
     return files;
 }
