@@ -21,5 +21,4 @@ import {ActivityType} from "discord-api-types/v10";
 
 export default async function(): Promise<void> {
     client.user.setPresence({status: "online", activities: [{type: ActivityType.Watching, name: "Being coded with DjsBotTemplateTS."}]})
-    console.log("The bot is ready!");
 }

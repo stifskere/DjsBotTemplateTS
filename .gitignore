@@ -4,4 +4,4 @@ node_modules
 .idea
 
 package-lock.json
-.Env
+.env

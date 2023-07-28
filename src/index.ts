@@ -4,7 +4,6 @@ import { fileURLToPath } from "url";
 
 import { CommandHandler, client } from "./Exports.js";
 import {REST, Routes} from "discord.js";
-
 const __path: string = path.dirname(fileURLToPath(import.meta.url));
 
 function getFilesRecursively(folderPath: string): Array<string> {
