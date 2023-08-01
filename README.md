@@ -53,16 +53,22 @@ to add commands and events I left 2 comments
 
 I recommend you to read that to know how to implement commands, otherwise you can just read the code and see how it works by yourself.
 
-### Splash screen
+### Bot configuration
 
-for the splash screen there is a json in the root called `botConfig.json` which has 2 fields
+for the bot configuration there is a json in the root called `botConfig.json` which has 2 fields
 
 ```json
     {
       "credits": true,
-      "splash": true
+      "splash": true,
+      "paths": {
+        "events": "Events",
+        "commands": "Commands",
+        "buttons": "Buttons"
+      }
     }
 ```
 
 - the `credits` option is for the `Thanks for using DjsBotTemplateTS!` text at the start.
 - the `splash` option is to automatically show when the client is started, the time and the websocket ping.
+- the `paths` option has its defaults, and is where the bot is going to find each category starting from the `src` folder.
