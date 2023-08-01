@@ -1,11 +1,9 @@
-import {ChatInputCommandInteraction, Interaction} from "discord.js";
-import {client, CommandHandler} from "../Exports.js";
+import {ButtonInteraction, ChatInputCommandInteraction, Interaction} from "discord.js";
+import {ButtonHandler, client, ContextProvider} from "../Exports.js";
 
 export default async function (interaction: Interaction): Promise<void> {
-    if (!(interaction instanceof ChatInputCommandInteraction))
-        return;
-
-    const handler: CommandHandler = client.commands.get(interaction.commandName);
-    handler.context = interaction;
+    const handler: ContextProvider<ButtonInteraction | ChatInputCommandInteraction> = interaction instanceof ChatInputCommandInteraction ? (client.commands.get(interaction.commandName)
+        || client.guildCommands.get(interaction.guild.id).get(interaction.commandName)) : client.buttonHandlers.find((h: ButtonHandler): boolean => h.id === (interaction as ButtonInteraction).customId);
+    handler.context = (interaction as ButtonInteraction | ChatInputCommandInteraction);
     await handler.execute();
 }
