@@ -1,53 +1,76 @@
-import fs from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "url";
-import {Collection, REST, RESTPostAPIChatInputApplicationCommandsJSONBody as CommandJsonBody, Routes} from "discord.js";
+import { join, dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { glob } from "glob";
+import CustomClient from "./modules/CustomClient.js";
+import {
+	CommandTypes,
+	SlashCommand,
+	Event,
+	ComponentTypes,
+	UserCommand
+} from "@handlers/Builders.js";
+import { ClientEvents, REST, Routes } from "discord.js";
+import process from "node:process";
+import { logger, notifyError } from "@utils/logger.js";
 
-import {CommandHandler, client, GuildCommandHandler, isContextProviderHandler, ButtonHandler} from "./Exports.js";
+(await import("dotenv")).config({ path: "./.env" });
 
-import botConfig from "../botConfig.json" assert {type: "json"};
+const dirName: string = dirname(fileURLToPath(import.meta.url));
+const client: CustomClient = new CustomClient();
 
-const __path: string = path.dirname(fileURLToPath(import.meta.url));
-
-function getFilesRecursively(folderPath: string): Array<string> {
-    const files: Array<string> = [];
-    for (const item of fs.readdirSync(folderPath)) {
-        if (fs.statSync(path.join(folderPath, item)).isDirectory()) files.push(...getFilesRecursively(path.join(folderPath, item)));
-        else files.push(path.join(folderPath, item));
-    }
-    return files;
+async function registerFiles<T>(subFolder: string, callback: (imported: T) => void): Promise<void> {
+	for (const handler of await glob(join(dirName, subFolder) + "/**/*.js")) {
+		// avoid unresolved route in webstorm.
+		const moduleName: string = `file://${resolve(handler)}`;
+		callback((await import(moduleName)).default);
+	}
 }
 
-const getPaths: (p: string) => Array<string> = (p) => getFilesRecursively(path.resolve(__path, p)).filter((e: string): boolean => e.endsWith(".js"));
+await registerFiles<CommandTypes | ComponentTypes>(
+	"commands",
+	(imported: CommandTypes | ComponentTypes): void => {
+		if (imported instanceof SlashCommand || imported instanceof UserCommand)
+			client.commands.push(imported); // these get registered
+		else {
+			client.components.push(imported); // these don't
+		}
+	}
+);
 
-(await import("dotenv")).config({path: getFilesRecursively(path.resolve(__path, "../")).find((v: string): boolean => v.toLowerCase().endsWith(".env"))});
+await new REST()
+	.setToken(<string>process.env.TOKEN)
+	.put(Routes.applicationCommands(process.env.APPID!), {
+		body: client.commands.map((c: CommandTypes) => c.parameters.builder.toJSON())
+	});
 
-for (const event of getPaths(botConfig.paths.events)) {
-    const eventArr: Array<string> = event.split(/[\\\/]/gmi);
-    client.on(eventArr[eventArr.length - 1].substring(0, eventArr[eventArr.length - 1].length - 3), async (...args: any): Promise<any> => await (await import(`file:///${event}`)).default(...args));
-}
+await registerFiles<Event>("events", (imported: Event): void => {
+	function eventWrapper(...params: any[]): void {
+		new Promise<void>((resolve, reject) => {
+			try {
+				const handlerResult: Promise<void> | void = imported.parameters.handler.call(
+					imported.context,
+					...params
+				);
 
-const ImportConstructor: (p: string) => Promise<any> = async (p: string) => (await import(`file:///${p.replace(/\.ts$/gmi, ".js")}`)).default;
+				if (handlerResult instanceof Promise) {
+					handlerResult.then(resolve).catch(reject);
 
-for (const commandIteration of getPaths(botConfig.paths.commands)) {
-    const command: any = new (await ImportConstructor(commandIteration))();
+					return;
+				}
 
-    if (isContextProviderHandler<GuildCommandHandler | CommandHandler>(command))
-        ((command instanceof GuildCommandHandler ? client.guildCommands.get(command.guildId) || client.guildCommands.set(command.guildId, new Collection())
-            : client.commands) as Collection<string, GuildCommandHandler | CommandHandler>).set(((command as unknown) as CommandHandler).data.name, ((command as unknown) as CommandHandler));
-}
+				resolve();
+			} catch (error: any) {
+				reject(error);
+			}
+		}).catch((error: Error): void => {
+			logger.error(`Error caught in ${imported.parameters.event} event:\n${error}`);
+			notifyError(error);
+		});
+	}
 
-for (const buttonIteration of getPaths(botConfig.paths.buttons)) {
-    const buttonHandler: any = new (await ImportConstructor(buttonIteration))();
+	imported.context = { client };
 
-    if (buttonHandler instanceof ButtonHandler)
-        client.buttonHandlers.push(buttonHandler);
-}
-
-const commandRest: REST = new REST({version: "10"}).setToken(process.env.TOKEN!);
-await commandRest.put(Routes.applicationCommands(process.env.APPID!), {body: client.commands.map((c: CommandHandler): CommandJsonBody => c.data.toJSON())});
-
-for (const guild of client.guildCommands.values())
-    await commandRest.put(Routes.applicationCommands(process.env.APPID!), {body: guild.map((c: GuildCommandHandler): CommandJsonBody => c.data.toJSON())})
+	client.on(<keyof ClientEvents>imported.parameters.event, eventWrapper);
+});
 
 await client.login(process.env.TOKEN);

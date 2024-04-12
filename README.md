@@ -5,46 +5,56 @@ basically the base discord.js functions are implemented, so you don't need to do
 
 This only implements a command handler and an event handler.
 
-### Getting started
+## Getting started
 
-to get started you shall clone the repository using the following command
+To get started, create a copy of the repository template, then you may clone the copy repository.
 
-```bash
-    git clone https://github.com/stifskere/DjsBotTemplateTS.git
-```
+![img.png](external/clone.png)
 
-and then just move to the root of the project by using
+then you may clone it using the following command
 
 ```bash
-    cd DjsBotTemplateTS
+git clone https://github.com/$your_user_name/$your_repo_name
+cd $your_repo_name
 ```
 
-create a .Env file somewhere in the project, it can be inside src, in the root, however you want.
+and then open it with your favorite editor
 
 ```bash
-    echo "" > ".Env"
+# whether is vscode
+code .
+# or webstorm
+webstorm .
 ```
 
-and add the following variables to it
+Before touching any code, you should install all the dependencies for this bot.
+
+```bash
+npm install
+```
+
+after running this command you can see that a file named `.env` has been created, you may fill it now.
 
 ```dotenv
-    TOKEN=YOURBOTTOKEN
-    APPID=YOURBOTID
+# you can get these values in https://discord.dev
+
+TOKEN="" # your discord bot token should go here.
+APPID="" # your discord application id should go here.
 ```
 
-you can get the bot ID by right-clicking the bot user and copy the id, it should be the last option
+**THIS FILE SHOULD NEVER BE PUSHED TO YOUR GITHUB REPOSITORY** thus it's added in the `.gitignore`.
 
-### Starting the bot
+## Starting the bot
 
-run the following command
+npm scripts are configured in this repository `package.json`, you may run the following.
 
 ```bash
-    npm run start
+npm run start
 ```
 
-and if the variables are set correctly your bot now should have a command which is `ping`
+if your `.env` file is correctly set, you should have a `/ping` command available.
 
-### Adding implementations
+## Adding implementations
 
 to add commands and events I left 2 comments
 

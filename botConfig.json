@@ -1,9 +1,0 @@
-{
-  "credits": true,
-  "splash": true,
-  "paths": {
-    "events": "Events",
-    "commands": "Commands",
-    "buttons": "Buttons"
-  }
-}
