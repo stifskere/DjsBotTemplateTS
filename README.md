@@ -1,9 +1,9 @@
 # Discord.JS template for typescript
 
-This is a template for a discord bot that includes its own command and event handler,
-basically the base discord.js functions are implemented, so you don't need to do that.
+This is a TypeScript bot template for Discord.JS,
+it contains the basic utilities such as command registering and interaction/event handing.
 
-This only implements a command handler and an event handler.
+You may extend the content of this template to create your own customized bot.
 
 ## Getting started
 
@@ -56,29 +56,69 @@ if your `.env` file is correctly set, you should have a `/ping` command availabl
 
 ## Adding implementations
 
-to add commands and events I left 2 comments
+Implementations in this template are really simple, and typescript should hint you to make them correctly.
 
-- The first one is in the `Ping.ts` file for the command implementations
-- The second one is in the `ready.ts` file for the event implementations
+You may create a file under `commands/**/*` to create a slash command,
+or a file under `events/**/*` to create an event handler.
 
-I recommend you to read that to know how to implement commands, otherwise you can just read the code and see how it works by yourself.
+To define what are you exporting, you may export one of the following objects,
+otherwise the handler will ignore your export.
 
-### Bot configuration
+Inside `commands/**/*` you may place one of the following default exports
 
-for the bot configuration there is a json in the root called `botConfig.json` which has 2 fields
-
-```json
-    {
-      "credits": true,
-      "splash": true,
-      "paths": {
-        "events": "Events",
-        "commands": "Commands",
-        "buttons": "Buttons"
-      }
+```ts
+export default new SlashCommand({
+    builder: new SlashCommandBuilder(),
+    
+    async handler(): Promise<void> {
+        
     }
+});
 ```
 
-- the `credits` option is for the `Thanks for using DjsBotTemplateTS!` text at the start.
-- the `splash` option is to automatically show when the client is started, the time and the websocket ping.
-- the `paths` option has its defaults, and is where the bot is going to find each category starting from the `src` folder.
+```ts
+export default new UserCommand({
+    builder: new ContextMenuCommandBuilder(),
+
+    async handler(): Promise<void> {
+		
+    }
+});
+```
+
+```ts
+export default new ButtonInteraction({
+    componentId: "",
+    
+    async handler(): Promise<void> {
+		
+    }
+});
+```
+
+```ts
+export default new SelectMenuInteraction({
+    componentId: "",
+    
+    async handler(): Promise<void> {
+		
+    }
+})
+```
+
+To access the executing client or the interaction, `this` is bound with the corresponding context for each interaction.
+For example,
+you may access the interaction using  `this.context` and you will have access to it's `reply()` method and more.
+
+Inside the `events/**/*` you may place one of the following default exports
+
+```ts
+export default new Event({
+    event: Events.ClientReady,
+    
+    async handler(): Promise<void> {
+		
+    }
+});
+```
+
