@@ -39,10 +39,13 @@ export default new Event({
 				client: this.client
 			};
 
+			const subCommandGroup: string | null = interaction.options.getSubcommandGroup(false);
+			const subcommand = interaction.options.getSubcommand(false);
+
 			interactionIdentifier =
 				`/${interaction.commandName} ` +
-					`${interaction.options.getSubcommandGroup ?? ""} ` +
-					interaction.options.getSubcommand ?? "";
+				(subCommandGroup !== null ? `${subCommandGroup} ` : "") +
+				(subcommand !== null ? `${subcommand} ` : "");
 			interactionType = "slash command";
 		} else if (interaction instanceof UserContextMenuCommandInteraction) {
 			command = <UserCommand>(
